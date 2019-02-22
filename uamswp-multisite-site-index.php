@@ -82,10 +82,10 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 			$instance['title'] = '';
 		}
 		if ( ! array_key_exists( 'order', $instance ) ) {
-			$instance['order'] = '';
+			$instance['order'] = 'ASC';
 		}
 		if ( ! array_key_exists( 'orderby', $instance ) ) {
-			$instance['orderby'] = '';
+			$instance['orderby'] = 'id';
 		}
 		if ( ! array_key_exists( 'description', $instance ) ) {
 			$instance['description'] = true;
@@ -164,16 +164,16 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id('order'); ?>"><?php echo __( 'Order (ASC or DESC):', 'multisite-site-index' ); ?></label>
 			<select name="<?php echo esc_attr( $this->get_field_name( 'order' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>" class="widefat">
-				<option value="ASC"<?php selected( $instance['order'], 'ASC' ); ?>><?php _e('ASC (A - Z)'); ?></option>
-				<option value="DESC"<?php selected( $instance['order'], 'DESC' ); ?>><?php _e('DESC (Z - A)'); ?></option>
+				<option value="ASC"<?php selected( $order, 'ASC' ); ?>><?php _e('ASC (A - Z)'); ?></option>
+				<option value="DESC"<?php selected( $order, 'DESC' ); ?>><?php _e('DESC (Z - A)'); ?></option>
 			</select>
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id('orderby'); ?>"><?php echo __( 'Order by:', 'multisite-site-index' ); ?></label>
 			<select name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>" class="widefat">
-			  <option value="id"<?php selected( $instance['orderby'], 'id' ); ?>><?php _e( 'Site ID' ); ?></option>
-				<option value="name"<?php selected( $instance['orderby'], 'name' ); ?>><?php _e('Site Title'); ?></option>
-				<option value="last_updated"<?php selected( $instance['orderby'], 'last_updated' ); ?>><?php _e('Last Updated'); ?></option>
+			  <option value="id"<?php selected( $orderby, 'id' ); ?>><?php _e( 'Site ID' ); ?></option>
+				<option value="name"<?php selected( $orderby, 'name' ); ?>><?php _e('Site Title'); ?></option>
+				<option value="last_updated"<?php selected( $orderby, 'last_updated' ); ?>><?php _e('Last Updated'); ?></option>
 			</select>
 		</p>
 		<p><input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('description'); ?>" name="<?php echo $this->get_field_name('description'); ?>" <?php checked( $description, true, true ) ?> /> <label for="<?php echo $this->get_field_name('description'); ?>"><?php _e( 'Show site description' ); ?></label></p>
@@ -208,6 +208,7 @@ function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $num
 	}
 
 	$sortorder = array();
+	$innerhtml = '';
 	foreach ( $sites as $site ) {
 		switch_to_blog( $site );
 		$innerhtml .= '<li class="site">';
@@ -248,4 +249,3 @@ function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $num
 
 	return $html;
 }
-
