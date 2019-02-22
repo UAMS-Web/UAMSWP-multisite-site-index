@@ -60,7 +60,7 @@ add_action( 'widgets_init', 'uams_multisite_site_index_widget_init' );
 class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 	/* Constructor */
 	function __construct() {
-		parent::__construct( 'UAMS Multisite_Site_Index_Widget', __( 'Site Index', 'content-slideshow' ), array( 
+		parent::__construct( 'UAMS Multisite_Site_Index_Widget', __( 'Site Index', 'content-slideshow' ), array(
 			'customize_selective_refresh' => true,
 			'description' => __( 'Displays an index of sites on this multisite network', 'multisite-site-index' ),
 		) );
@@ -218,7 +218,7 @@ function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $num
 			esc_html( get_bloginfo( 'name' ) )
 		);
 		// Add the site tagline.
-		if ( false !== $description ) {
+		if ( false != $description ) {
 			$innerhtml .= '<br><em class="site-index-site-tagline">' . get_bloginfo( 'description' ) . '</em>';
 		}
 
@@ -239,7 +239,7 @@ function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $num
 	}
 
 	$html = '<ul class="site-index '. $orderby .'">';
-	
+
 	foreach($sortorder as $result) {
 		$html .= $result['html'];
 	}
