@@ -1,0 +1,4 @@
+# Keep-list: a GitHub download of this plugin holds only what it runs.
+/* export-ignore
+/.* export-ignore
+/uamswp-multisite-site-index.php -export-ignore
