@@ -1,0 +1,27 @@
+{
+    "name": "uams-web/uamswp-multisite-site-index",
+    "description": "Display an index of all sites on a multisite network with a widget or a shortcode.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "brain/monkey": "^2.7",
+        "pestphp/pest": "^5.3"
+    },
+    "config": {
+        "platform": {
+            "php": "8.4.27"
+        },
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "@test:unit",
+        "test:unit": "pest"
+    },
+    "scripts-descriptions": {
+        "test": "Run the test suite.",
+        "test:unit": "Run the Pest suite that needs no WordPress and no database."
+    }
+}
