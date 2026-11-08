@@ -32,6 +32,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Add the site index shortcode.
 add_shortcode('site-index', 'uams_multisite_site_index_do_shortcode');
+/**
+ * Render the `[site-index]` shortcode.
+ *
+ * @param  array<string, mixed>|string  $atts  The shortcode attributes; WordPress passes an empty string when there are none.
+ */
 function uams_multisite_site_index_do_shortcode($atts): ?string
 {
     if (! is_multisite()) {
@@ -119,7 +124,13 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
         echo $after_widget;
     }
 
-    /* Widget control update */
+    /**
+     * Widget control update.
+     *
+     * @param  array<string, mixed>  $new_instance
+     * @param  array<string, mixed>  $old_instance
+     * @return array<string, mixed>
+     */
     public function update($new_instance, $old_instance)
     {
         $instance = $old_instance;
@@ -194,6 +205,13 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
  * Return the markup for the site index.
  *
  * @todo Build out a recent posts option: `$recent` is reserved for it, and callers still pass it positionally.
+ *
+ * @param  string  $excluded  Comma-separated site IDs to leave out.
+ * @param  int  $recent  Reserved and unused.
+ * @param  int  $number  The most sites to list.
+ * @param  bool|int|string  $description  Whether to show each site's tagline.
+ * @param  string  $order  `ASC` or `DESC`.
+ * @param  string  $orderby  `id`, `name` or `last_updated`.
  */
 function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id'): string
 {
