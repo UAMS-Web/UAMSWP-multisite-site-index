@@ -24,6 +24,7 @@
 declare(strict_types=1);
 
 use Brain\Monkey\Functions;
+use Mockery\Matcher\MatcherAbstract;
 
 use function Brain\Monkey\Filters\expectApplied;
 use function Brain\Monkey\Functions\stubEscapeFunctions;
@@ -111,6 +112,14 @@ function widget_args(): array
 }
 
 /**
+ * An argument matcher that holds the type as well as the value: Mockery's `with()` compares loosely.
+ */
+function strictly(mixed $expected): MatcherAbstract
+{
+    return Mockery::on(fn (mixed $actual): bool => $actual === $expected);
+}
+
+/**
  * The markup of one listed site, as the plugin builds it.
  */
 function site_item(string $url, string $title, ?string $tagline): string
@@ -123,7 +132,7 @@ function site_item(string $url, string $title, ?string $tagline): string
 /**
  * WordPress' selected() and checked(): the attribute when the two values match, echoed when asked to and returned either way.
  */
-function html_attribute(string $name, mixed $value, mixed $current, bool $echo): string
+function html_attribute(string $name, bool|int|string $value, bool|int|string $current, bool $echo): string
 {
     $html = (string) $value === (string) $current ? " {$name}='{$name}'" : '';
 
@@ -143,8 +152,8 @@ function render_form(array $instance, int $siteCount): string
 {
     Functions\expect('get_sites')->once()->with(['count' => true])->andReturn($siteCount);
 
-    when('selected')->alias(fn (mixed $value, mixed $current = true, bool $echo = true): string => html_attribute('selected', $value, $current, $echo));
-    when('checked')->alias(fn (mixed $value, mixed $current = true, bool $echo = true): string => html_attribute('checked', $value, $current, $echo));
+    when('selected')->alias(fn (bool|int|string $value, bool|int|string $current = true, bool $echo = true): string => html_attribute('selected', $value, $current, $echo));
+    when('checked')->alias(fn (bool|int|string $value, bool|int|string $current = true, bool $echo = true): string => html_attribute('checked', $value, $current, $echo));
 
     $widget = new UAMS_Multisite_Site_Index_Widget;
 
@@ -276,6 +285,70 @@ describe('the widget', function (): void {
         );
 
         expect(ob_get_clean())->toBe('<aside><h2>Filtered sites</h2><ul>index</ul></aside>');
+    });
+
+    it('hands the markup each setting as the type it expects', function (): void {
+        expectApplied('widget_title')->once()->with('Sites')->andReturn('Sites');
+        Functions\expect('uams_multisite_site_index_get_markup')
+            ->once()
+            ->with(strictly('4'), 0, strictly(7), strictly(false), strictly('DESC'), strictly('9'))
+            ->andReturn('<ul>index</ul>');
+
+        ob_start();
+        (new UAMS_Multisite_Site_Index_Widget)->widget(
+            widget_args(),
+            ['title' => 'Sites', 'excluded' => 4, 'number' => '7', 'order' => 'DESC', 'orderby' => 9, 'description' => '0']
+        );
+
+        expect(ob_get_clean())->toBe('<aside><h2>Sites</h2><ul>index</ul></aside>');
+    });
+
+    it('falls back to empty and zero for settings that hold no scalar', function (): void {
+        expectApplied('widget_title')->once()->with(['x'])->andReturn(['x']);
+        Functions\expect('uams_multisite_site_index_get_markup')
+            ->once()
+            ->with(strictly(''), 0, strictly(0), strictly(true), strictly(''), strictly(''))
+            ->andReturn('<ul>index</ul>');
+
+        ob_start();
+        (new UAMS_Multisite_Site_Index_Widget)->widget(
+            widget_args(),
+            ['title' => ['x'], 'excluded' => ['1'], 'number' => [5], 'order' => ['DESC'], 'orderby' => ['name'], 'description' => ['yes']]
+        );
+
+        expect(ob_get_clean())->toBe('<aside><ul>index</ul></aside>');
+    });
+
+    it('saves a setting that holds no scalar as empty or zero', function (): void {
+        $saved = (new UAMS_Multisite_Site_Index_Widget)->update(
+            ['title' => ['x'], 'number' => [5], 'excluded' => ['1'], 'order' => ['DESC'], 'orderby' => ['name'], 'description' => ['yes']],
+            []
+        );
+
+        expect($saved)->toBe(['title' => '', 'number' => 0, 'excluded' => '', 'order' => '', 'orderby' => '', 'description' => true]);
+    });
+
+    it('saves a numeric setting that arrives as an integer', function (): void {
+        $saved = (new UAMS_Multisite_Site_Index_Widget)->update(
+            ['title' => 7, 'number' => 9, 'excluded' => 1, 'order' => 'ASC', 'orderby' => 'id', 'description' => false],
+            []
+        );
+
+        expect($saved['title'])->toBe('7')
+            ->and($saved['number'])->toBe(9)
+            ->and($saved['excluded'])->toBe('1');
+    });
+
+    it('renders the form with empty and zero values for settings that hold no scalar', function (): void {
+        $html = render_form(
+            ['title' => ['x'], 'number' => ['x'], 'excluded' => ['1'], 'order' => ['DESC'], 'orderby' => ['name'], 'description' => true],
+            150
+        );
+
+        expect($html)
+            ->toContain('id="widget-site-index-title" name="widget-site-index[title]" type="text" value=""')
+            ->toContain('id="widget-site-index-number" name="widget-site-index[number]" type="number" value="0"')
+            ->toContain('id="widget-site-index-excluded" name="widget-site-index[excluded]" type="text" value=""');
     });
 
     it('saves sanitized settings and keeps the ones it does not own', function (): void {
