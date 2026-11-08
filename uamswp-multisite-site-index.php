@@ -55,6 +55,25 @@ function uams_multisite_site_index_do_shortcode($atts): string
     return uams_multisite_site_index_get_markup($excluded, $recent, $number, $description, $order, $orderby);
 }
 
+/**
+ * Read a saved setting as a string, or `$default` when it holds something that is not a scalar.
+ */
+function uams_multisite_site_index_string(mixed $value, string $default = ''): string
+{
+    // This file does not declare strict types, so the `: string` return type already converts a scalar the way
+    // `(string)` does, and no input tells the two apart. PHPStan still needs the cast to see a string.
+    // @pest-mutate-ignore: RemoveStringCast
+    return is_scalar($value) ? (string) $value : $default;
+}
+
+/**
+ * Read a saved setting as an integer, or `$default` when it holds something that is not a scalar.
+ */
+function uams_multisite_site_index_int(mixed $value, int $default = 0): int
+{
+    return is_scalar($value) ? (int) $value : $default;
+}
+
 // Register 'Multisite Site Index' widget.
 function uams_multisite_site_index_widget_init(): void
 {
@@ -78,11 +97,14 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
         $this->widget_options['customize_selective_refresh'] = true;
     }
 
-    /* This is the Widget */
+    /**
+     * This is the Widget.
+     *
+     * @param  array{name: string, id: string, description: string, class: string, before_widget: string, after_widget: string, before_title: string, after_title: string, before_sidebar: string, after_sidebar: string, show_in_rest: bool, widget_id: string, widget_name: string}  $args
+     * @param  array<string, mixed>  $instance
+     */
     public function widget($args, $instance): void
     {
-        extract($args);
-
         if (! array_key_exists('excluded', $instance)) {
             $instance['excluded'] = '';
         }
@@ -105,23 +127,23 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
         }
 
         // Widget options
-        $title = apply_filters('widget_title', $instance['title']); // Title
-        $excluded = $instance['excluded'];
-        $number = $instance['number'];
-        $order = $instance['order'];
-        $orderby = $instance['orderby'];
-        $description = $instance['description'];
+        $title = uams_multisite_site_index_string(apply_filters('widget_title', $instance['title'])); // Title
+        $excluded = uams_multisite_site_index_string($instance['excluded']);
+        $number = uams_multisite_site_index_int($instance['number']);
+        $order = uams_multisite_site_index_string($instance['order']);
+        $orderby = uams_multisite_site_index_string($instance['orderby']);
+        $description = (bool) $instance['description'];
 
         // Output
-        echo $before_widget;
+        echo $args['before_widget'];
 
         if ($title) {
-            echo $before_title.$title.$after_title;
+            echo $args['before_title'].$title.$args['after_title'];
         }
 
         echo uams_multisite_site_index_get_markup($excluded, 0, $number, $description, $order, $orderby);
 
-        echo $after_widget;
+        echo $args['after_widget'];
     }
 
     /**
@@ -134,25 +156,29 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
     public function update($new_instance, $old_instance)
     {
         $instance = $old_instance;
-        $instance['title'] = strip_tags($new_instance['title']);
-        $instance['number'] = absint($new_instance['number']);
-        $instance['excluded'] = strip_tags($new_instance['excluded']);
-        $instance['order'] = strip_tags($new_instance['order']);
-        $instance['orderby'] = strip_tags($new_instance['orderby']);
+        $instance['title'] = strip_tags(uams_multisite_site_index_string($new_instance['title']));
+        $instance['number'] = absint(uams_multisite_site_index_int($new_instance['number']));
+        $instance['excluded'] = strip_tags(uams_multisite_site_index_string($new_instance['excluded']));
+        $instance['order'] = strip_tags(uams_multisite_site_index_string($new_instance['order']));
+        $instance['orderby'] = strip_tags(uams_multisite_site_index_string($new_instance['orderby']));
         $instance['description'] = (bool) ($new_instance['description']);
 
         return $instance;
     }
 
-    /* Widget settings */
+    /**
+     * Widget settings.
+     *
+     * @param  array<string, mixed>  $instance
+     */
     public function form($instance): void
     {
         if ($instance) {
-            $title = $instance['title'];
-            $number = $instance['number'];
-            $excluded = $instance['excluded'];
-            $order = $instance['order'];
-            $orderby = $instance['orderby'];
+            $title = uams_multisite_site_index_string($instance['title']);
+            $number = uams_multisite_site_index_int($instance['number']);
+            $excluded = uams_multisite_site_index_string($instance['excluded']);
+            $order = uams_multisite_site_index_string($instance['order']);
+            $orderby = uams_multisite_site_index_string($instance['orderby']);
             $description = $instance['description'];
         } else {
             // These are the defaults.
