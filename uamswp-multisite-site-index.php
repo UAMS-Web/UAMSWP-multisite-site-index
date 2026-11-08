@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 =====================================================================================
 */
 
-// Add the site index shortcode.
+// Add the site index shortcode (scratch change to exercise the mutate job).
 add_shortcode('site-index', 'uams_multisite_site_index_do_shortcode');
 function uams_multisite_site_index_do_shortcode($atts): ?string
 {
