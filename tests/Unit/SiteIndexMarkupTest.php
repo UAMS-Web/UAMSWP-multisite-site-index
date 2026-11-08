@@ -48,3 +48,5 @@ it('lists each site as a linked title with its tagline', function (): void {
         .'<br><em class="site-index-site-tagline">The second site</em></li></ul>'
     );
 });
+
+// scratch: tests-only change for the mutate job
