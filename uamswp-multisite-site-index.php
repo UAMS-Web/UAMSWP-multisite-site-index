@@ -60,6 +60,9 @@ function uams_multisite_site_index_do_shortcode($atts): string
  */
 function uams_multisite_site_index_string(mixed $value, string $default = ''): string
 {
+    // This file does not declare strict types, so the `: string` return type already converts a scalar the way
+    // `(string)` does, and no input tells the two apart. PHPStan still needs the cast to see a string.
+    // @pest-mutate-ignore: RemoveStringCast
     return is_scalar($value) ? (string) $value : $default;
 }
 

@@ -7,7 +7,7 @@
  * - The file-scope `add_shortcode()` and `add_action()` calls run once per process, in the first
  *   test's `beforeEach`. The first test below asserts what the loader recorded, so it must stay
  *   first: a mutant on those two lines is only covered by that test.
- * - Five mutants are equivalent and annotated in the plugin file with `@pest-mutate-ignore`, each
+ * - Six mutants are equivalent and annotated in the plugin file with `@pest-mutate-ignore`, each
  *   with its reason beside it:
  *   - `UnwrapTrim` on `absint(trim($id))`: absint() is abs(intval()), and intval() ignores
  *     surrounding whitespace, so no input can tell `absint(' 3 ')` from `absint('3')`. The unit
@@ -17,6 +17,8 @@
  *   - `EqualToIdentical` on each of the three comparisons that choose the sort (`$orderby == 'name'`,
  *     `$order == 'ASC'`, `$order == 'DESC'`): `==` and `===` differ only for a non-string value, and
  *     the shortcode attributes and widget settings that reach them are always strings.
+ *   - `RemoveStringCast` on `uams_multisite_site_index_string()`: the file does not declare strict
+ *     types, so the `: string` return type converts a scalar exactly as `(string)` does.
  *
  * @see uamswp-multisite-site-index.php
  */
