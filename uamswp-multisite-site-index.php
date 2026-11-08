@@ -35,7 +35,7 @@ add_shortcode('site-index', 'uams_multisite_site_index_do_shortcode');
 /**
  * Render the `[site-index]` shortcode.
  *
- * @param  array<string, mixed>|string  $atts  The shortcode attributes; WordPress passes an empty string when there are none.
+ * @param  array<int|string, mixed>|string  $atts  The shortcode attributes; WordPress passes an empty string when there are none.
  */
 function uams_multisite_site_index_do_shortcode($atts): string
 {

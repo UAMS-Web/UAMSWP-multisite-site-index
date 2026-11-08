@@ -6,6 +6,9 @@
 
 declare(strict_types=1);
 
+use Pest\TestSuite;
+use PHPUnit\Framework\TestCase;
+
 use function Brain\Monkey\setUp;
 use function Brain\Monkey\tearDown;
 
@@ -20,7 +23,12 @@ uses()
         setUp();
     })
     ->afterEach(function (): void {
-        $this->addToAssertionCount(Mockery::getContainer()->mockery_getExpectationCount());
+        // `$this` is untyped inside a `uses()` hook; the running test is the suite's current test case.
+        $test = TestSuite::getInstance()->test;
+
+        if ($test instanceof TestCase) {
+            $test->addToAssertionCount(max(0, Mockery::getContainer()->mockery_getExpectationCount()));
+        }
 
         tearDown();
     })

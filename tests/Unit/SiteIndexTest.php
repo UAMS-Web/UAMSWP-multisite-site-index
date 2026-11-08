@@ -168,7 +168,7 @@ function render_form(array $instance, int $siteCount): string
 beforeEach(function (): void {
     stubEscapeFunctions();
     stubTranslationFunctions();
-    when('absint')->alias(fn ($value): int => abs((int) $value));
+    when('absint')->alias(fn (bool|float|int|string|null $value): int => abs((int) $value));
 
     require_once __DIR__.'/../Support/load-plugin.php';
 });
