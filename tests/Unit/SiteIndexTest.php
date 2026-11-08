@@ -87,6 +87,30 @@ function default_query(): array
 }
 
 /**
+ * The arguments WordPress passes to `widget()`, with wrapper markup the output can be read against.
+ *
+ * @return array{name: string, id: string, description: string, class: string, before_widget: string, after_widget: string, before_title: string, after_title: string, before_sidebar: string, after_sidebar: string, show_in_rest: bool, widget_id: string, widget_name: string}
+ */
+function widget_args(): array
+{
+    return [
+        'name' => 'Sidebar',
+        'id' => 'sidebar-1',
+        'description' => '',
+        'class' => '',
+        'before_widget' => '<aside>',
+        'after_widget' => '</aside>',
+        'before_title' => '<h2>',
+        'after_title' => '</h2>',
+        'before_sidebar' => '',
+        'after_sidebar' => '',
+        'show_in_rest' => false,
+        'widget_id' => 'site-index-1',
+        'widget_name' => 'Site Index',
+    ];
+}
+
+/**
  * The markup of one listed site, as the plugin builds it.
  */
 function site_item(string $url, string $title, ?string $tagline): string
@@ -206,8 +230,8 @@ describe('the widget', function (): void {
         expect($widget->id_base)->toBe('UAMS Multisite_Site_Index_Widget')
             ->and($widget->name)->toBe('Site Index')
             ->and($widget->widget_options)->toBe([
-                'customize_selective_refresh' => true,
                 'description' => 'Displays an index of sites on this multisite network',
+                'customize_selective_refresh' => true,
             ]);
     });
 
@@ -220,7 +244,7 @@ describe('the widget', function (): void {
 
         ob_start();
         (new UAMS_Multisite_Site_Index_Widget)->widget(
-            ['before_widget' => '<aside>', 'after_widget' => '</aside>', 'before_title' => '<h2>', 'after_title' => '</h2>'],
+            widget_args(),
             []
         );
 
@@ -236,7 +260,7 @@ describe('the widget', function (): void {
 
         ob_start();
         (new UAMS_Multisite_Site_Index_Widget)->widget(
-            ['before_widget' => '<aside>', 'after_widget' => '</aside>', 'before_title' => '<h2>', 'after_title' => '</h2>'],
+            widget_args(),
             ['title' => 'Sites', 'excluded' => '4', 'number' => 7, 'order' => 'DESC', 'orderby' => 'name', 'description' => false]
         );
 

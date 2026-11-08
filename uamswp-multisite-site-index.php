@@ -66,9 +66,11 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
     public function __construct()
     {
         parent::__construct('UAMS Multisite_Site_Index_Widget', __('Site Index', 'content-slideshow'), [
-            'customize_selective_refresh' => true,
             'description' => __('Displays an index of sites on this multisite network', 'multisite-site-index'),
         ]);
+
+        // WP_Widget accepts this option; the WordPress stubs' sealed options shape omits it.
+        $this->widget_options['customize_selective_refresh'] = true;
     }
 
     /* This is the Widget */
