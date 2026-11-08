@@ -18,10 +18,9 @@
 # 6.x as well, so the pin above covers both.
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    # bleedingEdge (vendor/phpstan/phpstan/conf/bleedingEdge.neon) is left out for now: it
-    # seals the phpdoc array shapes in php-stubs/wordpress-stubs, so `get_sites()` with any
-    # key besides `fields` is typed as WP_Site[] instead of int[] and `switch_to_blog()` fails.
-    # Restore it once the stubs allow it (UAMS-Web/UAMSWP-multisite-site-index#47, after level max).
+    # PHPStan's opt-in preview channel: turns on rules and stricter analysis that become default in
+    # the next major. Its two findings in this repository are the pinned entries under ignoreErrors.
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
     # Optional, when the repository uses Mockery:
     # - vendor/phpstan/phpstan-mockery/extension.neon
     # When the tests run on Pest: Pest's own extension, shipped inside
@@ -152,6 +151,25 @@ parameters:
     # an entry needs. With every entry commented out the key is empty, which
     # PHPStan reads as no entries.
     ignoreErrors:
+        # bleedingEdge seals the phpdoc array shapes in php-stubs/wordpress-stubs, so get_sites() called with
+        # any key besides fields is typed array<int, WP_Site> instead of array<int, int>, although
+        # 'fields' => 'ids' makes WordPress return site IDs. Measured on PHPStan 2.3.5, stubs v6.9.4 and
+        # szepeviktor/phpstan-wordpress v2.0.4. The stubs fixed the tag in the 7.1 line (v7.1.2 reads
+        # array{fields: 'ids', ...}); remove this entry when the stubs move to it
+        # (UAMS-Web/UAMSWP-multisite-site-index#54).
+        -
+            identifier: argument.type
+            message: '#^Parameter \#1 \$new_blog_id of function switch_to_blog expects int, WP_Site given\.$#'
+            path: uamswp-multisite-site-index.php
+            count: 1
+        # `$recent` is the reserved second parameter of uams_multisite_site_index_get_markup(). It is kept so
+        # positional callers keep working: removing it would be a breaking change to the function's signature.
+        -
+            identifier: function.unusedParameter
+            message: '#^Function uams_multisite_site_index_get_markup\(\) has an unused parameter \$recent\.$#'
+            path: uamswp-multisite-site-index.php
+            count: 1
+
         # The entry most plugins need once the level reaches 4, from
         # aether-wordpress-migration-api: the PHP version guard in the plugin header.
         # PHPStan analyzes at the `min` above, so
