@@ -188,9 +188,16 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
     }
 } // class Multisite_Site_Index_Widget
 
-// Return the markup for the site index.
+/**
+ * Return the markup for the site index.
+ *
+ * @todo Build out a recent posts option: `$recent` is reserved for it, and callers still pass it positionally.
+ */
 function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id'): string
 {
+    // Reserved: kept in the signature so positional callers keep working.
+    unset($recent);
+
     if (! is_multisite()) {
         return '';
     }
@@ -228,10 +235,6 @@ function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $numb
         // Add the site tagline.
         if ($description != false) {
             $innerhtml .= '<br><em class="site-index-site-tagline">'.get_bloginfo('description').'</em>';
-        }
-
-        if ($recent > 0) {
-            // @todo build out a recent posts option.
         }
 
         $innerhtml .= '</li>';
