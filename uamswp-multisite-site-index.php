@@ -4,6 +4,7 @@
  * Plugin URI: http://celloexpressions.com/plugins/multisite-site-index/
  * Description: Display an index of all sites on a multisite network with a widget or a shortcode.
  * Version: 1.1
+ * Requires PHP: 8.2
  * Author: Todd McKee, Med & Nick Halsey
  * Author URI: http://nick.halsey.co/
  * Tags: multisite, site index
