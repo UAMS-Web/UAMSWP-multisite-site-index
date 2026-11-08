@@ -1,0 +1,56 @@
+name: CI
+
+# Calls the shared job chain in UAMS-Web/uams-ci-workflows and adds the one job a ruleset
+# requires, `CI`. Source: .claude/skills/code-quality/templates/ci.yml in UAMS-Web/uams-claude-skills.
+#
+# - `uses:` names a release tag, never a branch, so a change to the shared chain reaches this
+#   repository only when the tag here moves.
+# - `CI` needs the call and fails unless it reports `success`. Keep `CI` named `CI` and keep
+#   its `needs:` listing every other job in this workflow (check-aggregate-needs.mjs checks it).
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: UAMS-Web/uams-ci-workflows/.github/workflows/ci.yml@v0.9.0
+    with:
+      linux-only: true
+      mutate: false
+      mutate-ignore-paths: includes
+      floor-lint: true
+      floor-lint-php: '8.2'
+      download-archive: true
+      download-archive-command: node .claude/skills/download-archive-check/check-download-archive.mjs
+      pest-command: composer test:unit
+
+  ci:
+    name: CI
+    needs: [checks]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # `skipped` and `cancelled` fail as well as `failure`: a call that did not run proved nothing.
+      - name: Every needed job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Needed job results: $RESULTS"
+          if [ -z "$RESULTS" ]; then echo "::error::No needed job results to read"; exit 1; fi
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              echo "::error::A needed job reported $result"
+              exit 1
+            fi
+          done
