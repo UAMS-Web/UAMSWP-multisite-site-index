@@ -1,2 +1,5 @@
 /vendor/
 /tests/Integration/vendor/
+/.phpstan/
+/.pint.cache
+/.rector-cache/

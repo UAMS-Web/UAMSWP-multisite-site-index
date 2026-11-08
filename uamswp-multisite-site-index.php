@@ -32,43 +32,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Add the site index shortcode.
 add_shortcode( 'site-index', 'uams_multisite_site_index_do_shortcode' );
-function uams_multisite_site_index_do_shortcode( $atts ){
+function uams_multisite_site_index_do_shortcode( $atts ): ?string{
 	if ( ! is_multisite() ) {
-		return;
+		return null;
 	}
 
-	extract( shortcode_atts( array(
+	extract( shortcode_atts( [
 		'excluded' => '',
 		'number' => 100,
 		'recent' => 0,
 		'description' => true,
 		'order' => 'ASC',
 		'orderby' => 'id'
-	), $atts ) );
+	], $atts ) );
 
 	return uams_multisite_site_index_get_markup( $excluded, $recent, $number, $description, $order, $orderby );
 }
 
 // Register 'Multisite Site Index' widget.
-function uams_multisite_site_index_widget_init() {
+function uams_multisite_site_index_widget_init(): void {
 	if ( ! is_multisite() ) {
 		return;
 	}
-	return register_widget( 'UAMS_Multisite_Site_Index_Widget' );
+	register_widget( 'UAMS_Multisite_Site_Index_Widget' );
 }
 add_action( 'widgets_init', 'uams_multisite_site_index_widget_init' );
 
 class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 	/* Constructor */
-	function __construct() {
-		parent::__construct( 'UAMS Multisite_Site_Index_Widget', __( 'Site Index', 'content-slideshow' ), array(
+	public function __construct() {
+		parent::__construct( 'UAMS Multisite_Site_Index_Widget', __( 'Site Index', 'content-slideshow' ), [
 			'customize_selective_refresh' => true,
 			'description' => __( 'Displays an index of sites on this multisite network', 'multisite-site-index' ),
-		) );
+		] );
 	}
 
 	/* This is the Widget */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ): void {
 		extract( $args );
 
 		if ( ! array_key_exists( 'excluded', $instance ) ) {
@@ -113,7 +113,7 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 	}
 
 	/* Widget control update */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['number'] = absint( $new_instance['number'] );
@@ -126,7 +126,7 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 	}
 
 	/* Widget settings */
-	function form( $instance ) {
+	public function form( $instance ): void {
 	    if ( $instance ) {
 			$title = $instance['title'];
 			$number = $instance['number'];
@@ -150,7 +150,7 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id('title'); ?>"><?php echo __( 'Title:', 'multisite-site-index' ); ?></label>
 			<input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" class="widefat" />
 		</p>
-		<?php if ( 100 < get_sites( array( 'count' => true ) ) ) : ?>
+		<?php if ( 100 < get_sites( [ 'count' => true ] ) ) : ?>
 		<p>
 			<label for="<?php echo $this->get_field_id('number'); ?>"><?php echo __( 'Number of Sites to Show:', 'multisite-site-index' ); ?></label>
 			<input id="<?php echo $this->get_field_id('number'); ?>" name="<?php echo $this->get_field_name('number'); ?>" type="number" value="<?php echo $number; ?>" class="widefat" />
@@ -184,31 +184,31 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
 } // class Multisite_Site_Index_Widget
 
 // Return the markup for the site index.
-function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id' ) {
+function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id' ): string {
 	if ( ! is_multisite() ) {
 		return '';
 	}
 
-	$ex_ids = array();
+	$ex_ids = [];
 	$excluded = explode( ',', $excluded );
 	foreach( $excluded as $id ) {
 		$ex_ids[] = absint( trim( $id ) );
 	}
 
-	$sites = get_sites( array(
+	$sites = get_sites( [
 		'site__not_in' => $ex_ids,
 		'orderby' => $orderby,
 		'order' => $order,
 		'fields' => 'ids',
 		'number' => $number,
 		'deleted' => 0,
-	) );
+	] );
 
 	if ( empty ( $sites ) ) {
 		return '';
 	}
 
-	$sortorder = array();
+	$sortorder = [];
 	$innerhtml = '';
 	foreach ( $sites as $site ) {
 		switch_to_blog( $site );
@@ -229,7 +229,7 @@ function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $num
 		}
 
 		$innerhtml .= '</li>';
-		$sortorder[] = array( 'title'=> esc_html( get_bloginfo( 'name' ) ), 'html'=> $innerhtml );
+		$sortorder[] = [ 'title'=> esc_html( get_bloginfo( 'name' ) ), 'html'=> $innerhtml ];
 		$innerhtml = '';
 		restore_current_blog();
 	}

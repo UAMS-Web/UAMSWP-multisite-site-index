@@ -10,17 +10,15 @@
 
 declare(strict_types=1);
 
-use Brain\Monkey\Functions;
+use function Brain\Monkey\Functions\when;
 
 if (! class_exists('WP_Widget')) {
     // Stand-in for WordPress' base widget class: the Unit suite never instantiates the widget.
-    class WP_Widget
-    {
-    }
+    class WP_Widget {}
 }
 
 if (! function_exists('uams_multisite_site_index_get_markup')) {
-    Functions\when('add_shortcode')->justReturn(true);
+    when('add_shortcode')->justReturn(true);
 
     require_once __DIR__.'/../../uamswp-multisite-site-index.php';
 }
