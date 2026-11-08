@@ -26,6 +26,8 @@ jobs:
     uses: UAMS-Web/uams-ci-workflows/.github/workflows/ci.yml@v0.9.0
     with:
       linux-only: true
+      # Turn mutation testing back on once coverage is complete (UAMS-Web/UAMSWP-multisite-site-index#24).
+      mutate: false
       mutate-paths: uamswp-multisite-site-index.php
       mutate-ignore-paths: tests
       floor-lint: true
