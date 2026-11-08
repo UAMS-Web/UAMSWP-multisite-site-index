@@ -233,7 +233,7 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
  * @todo Build out a recent posts option: `$recent` is reserved for it, and callers still pass it positionally.
  *
  * @param  string  $excluded  Comma-separated site IDs to leave out.
- * @param  int|string  $recent  Reserved and unused.
+ * @param  int|string  $recent  Deprecated and unused; kept in the signature so positional callers keep working.
  * @param  int|string  $number  The most sites to list.
  * @param  bool|int|string  $description  Whether to show each site's tagline.
  * @param  string  $order  `ASC` or `DESC`.
@@ -241,9 +241,6 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
  */
 function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id'): string
 {
-    // Reserved: kept in the signature so positional callers keep working.
-    unset($recent);
-
     if (! is_multisite()) {
         return '';
     }
