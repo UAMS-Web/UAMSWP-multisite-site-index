@@ -1,5 +1,5 @@
 name: Set up PHP and Composer
-description: Install PHP (8.2 by default), restore the Composer cache, and install the locked dependencies. Run after actions/checkout.
+description: Install PHP (8.4 by default), restore the Composer cache, and install the locked dependencies. Run after actions/checkout.
 
 # Template: .claude/skills/code-quality/templates/setup-action.yml in
 # UAMS-Web/uams-claude-skills, copied to .github/actions/setup/action.yml. The ci.yml
@@ -10,7 +10,7 @@ inputs:
   php-version:
     description: The PHP version to install.
     required: false
-    default: '8.2'
+    default: '8.4'
   coverage:
     description: The coverage driver to install, as shivammathur/setup-php names it. `none` for every job except the one that runs mutation testing, which passes `pcov`.
     required: false
