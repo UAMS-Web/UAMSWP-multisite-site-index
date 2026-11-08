@@ -7,8 +7,16 @@
  * - The file-scope `add_shortcode()` and `add_action()` calls run once per process, in the first
  *   test's `beforeEach`. The first test below asserts what the loader recorded, so it must stay
  *   first: a mutant on those two lines is only covered by that test.
- * - Equivalent mutants are annotated in the plugin file with `@pest-mutate-ignore`, each with its
- *   reason beside it and repeated here: none at the time of writing.
+ * - Five mutants are equivalent and annotated in the plugin file with `@pest-mutate-ignore`, each
+ *   with its reason beside it:
+ *   - `UnwrapTrim` on `absint(trim($id))`: absint() is abs(intval()), and intval() ignores
+ *     surrounding whitespace, so no input can tell `absint(' 3 ')` from `absint('3')`. The unit
+ *     tests stub absint() the same way.
+ *   - `ConcatEqualToEqual` on the first `$innerhtml .= '<li class="site">'`: `$innerhtml` is empty
+ *     there on every pass (declared empty, reset at the end of each pass), so `.=` and `=` agree.
+ *   - `EqualToIdentical` on each of the three comparisons that choose the sort (`$orderby == 'name'`,
+ *     `$order == 'ASC'`, `$order == 'DESC'`): `==` and `===` differ only for a non-string value, and
+ *     the shortcode attributes and widget settings that reach them are always strings.
  *
  * @see uamswp-multisite-site-index.php
  */
@@ -89,19 +97,30 @@ function site_item(string $url, string $title, ?string $tagline): string
 }
 
 /**
+ * WordPress' selected() and checked(): the attribute when the two values match, echoed when asked to and returned either way.
+ */
+function html_attribute(string $name, mixed $value, mixed $current, bool $echo): string
+{
+    $html = (string) $value === (string) $current ? " {$name}='{$name}'" : '';
+
+    if ($echo) {
+        echo $html;
+    }
+
+    return $html;
+}
+
+/**
  * Renders the widget form for an instance, with the field helpers WordPress provides stubbed.
  *
  * @param  array<string, mixed>  $instance
  */
 function render_form(array $instance, int $siteCount): string
 {
-    when('get_sites')->alias(fn (array $args): int => $siteCount);
-    when('selected')->alias(function (mixed $selected, mixed $current): void {
-        echo (string) $selected === (string) $current ? " selected='selected'" : '';
-    });
-    when('checked')->alias(function (mixed $checked, mixed $current): void {
-        echo (string) $checked === (string) $current ? " checked='checked'" : '';
-    });
+    Functions\expect('get_sites')->once()->with(['count' => true])->andReturn($siteCount);
+
+    when('selected')->alias(fn (mixed $value, mixed $current = true, bool $echo = true): string => html_attribute('selected', $value, $current, $echo));
+    when('checked')->alias(fn (mixed $value, mixed $current = true, bool $echo = true): string => html_attribute('checked', $value, $current, $echo));
 
     $widget = new UAMS_Multisite_Site_Index_Widget;
 
@@ -271,7 +290,15 @@ describe('the widget', function (): void {
             ->toContain('<option value="ASC">')
             ->toContain('<option value="name" selected=\'selected\'>')
             ->toContain('<option value="id">')
-            ->toContain('<option value="last_updated">');
+            ->toContain('<option value="last_updated">')
+            ->toContain('ASC (A - Z)')
+            ->toContain('DESC (Z - A)')
+            ->toContain('Site ID')
+            ->toContain('Site Title')
+            ->toContain('Last Updated')
+            ->toContain('Site IDs, separated by commas.')
+            ->toContain('Remove 1 to include the primary site.')
+            ->toContain('Show site description');
 
         expect($html)->not->toContain("checked='checked'");
     });
@@ -290,6 +317,15 @@ describe('the widget', function (): void {
 
     it('shows the number field only for a network of more than 100 sites', function (): void {
         expect(render_form([], 100))->not->toContain('widget-site-index[number]');
+    });
+
+    it('selects the last updated sort when that is saved', function (): void {
+        $html = render_form(['title' => '', 'number' => 100, 'excluded' => '', 'order' => 'ASC', 'orderby' => 'last_updated', 'description' => true], 10);
+
+        expect($html)
+            ->toContain("<option value=\"last_updated\" selected='selected'>")
+            ->toContain('<option value="id">')
+            ->toContain('<option value="name">');
     });
 
     it('shows the number field for 101 sites', function (): void {

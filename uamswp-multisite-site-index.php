@@ -205,6 +205,8 @@ function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $numb
     $ex_ids = [];
     $excluded = explode(',', $excluded);
     foreach ($excluded as $id) {
+        // absint() is abs(intval()), and intval() ignores surrounding whitespace, so trim() changes nothing.
+        // @pest-mutate-ignore: UnwrapTrim
         $ex_ids[] = absint(trim($id));
     }
 
@@ -225,6 +227,8 @@ function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $numb
     $innerhtml = '';
     foreach ($sites as $site) {
         switch_to_blog($site);
+        // $innerhtml is empty here (declared above, reset at the end of each pass), so `.=` and `=` agree.
+        // @pest-mutate-ignore: ConcatEqualToEqual
         $innerhtml .= '<li class="site">';
         // Show the site icon and title - based on the code for embeds.
         $innerhtml .= sprintf(
@@ -243,9 +247,19 @@ function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $numb
         restore_current_blog();
     }
 
-    if ($orderby == 'name' && $order == 'ASC') {
+    // `==` and `===` differ only for a non-string value, and the shortcode and the widget always pass strings.
+    // @pest-mutate-ignore: EqualToIdentical
+    $sortByName = $orderby == 'name';
+    // Same reason as $sortByName.
+    // @pest-mutate-ignore: EqualToIdentical
+    $ascending = $order == 'ASC';
+    // Same reason as $sortByName.
+    // @pest-mutate-ignore: EqualToIdentical
+    $descending = $order == 'DESC';
+
+    if ($sortByName && $ascending) {
         asort($sortorder);
-    } elseif ($orderby == 'name' && $order == 'DESC') {
+    } elseif ($sortByName && $descending) {
         arsort($sortorder);
     }
 
