@@ -37,10 +37,10 @@ add_shortcode('site-index', 'uams_multisite_site_index_do_shortcode');
  *
  * @param  array<string, mixed>|string  $atts  The shortcode attributes; WordPress passes an empty string when there are none.
  */
-function uams_multisite_site_index_do_shortcode($atts): ?string
+function uams_multisite_site_index_do_shortcode($atts): string
 {
     if (! is_multisite()) {
-        return null;
+        return '';
     }
 
     extract(shortcode_atts([
@@ -50,7 +50,7 @@ function uams_multisite_site_index_do_shortcode($atts): ?string
         'description' => true,
         'order' => 'ASC',
         'orderby' => 'id',
-    ], $atts));
+    ], is_array($atts) ? $atts : []));
 
     return uams_multisite_site_index_get_markup($excluded, $recent, $number, $description, $order, $orderby);
 }
@@ -207,8 +207,8 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
  * @todo Build out a recent posts option: `$recent` is reserved for it, and callers still pass it positionally.
  *
  * @param  string  $excluded  Comma-separated site IDs to leave out.
- * @param  int  $recent  Reserved and unused.
- * @param  int  $number  The most sites to list.
+ * @param  int|string  $recent  Reserved and unused.
+ * @param  int|string  $number  The most sites to list.
  * @param  bool|int|string  $description  Whether to show each site's tagline.
  * @param  string  $order  `ASC` or `DESC`.
  * @param  string  $orderby  `id`, `name` or `last_updated`.
@@ -235,7 +235,7 @@ function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $numb
         'orderby' => $orderby,
         'order' => $order,
         'fields' => 'ids',
-        'number' => $number,
+        'number' => absint($number),
         'deleted' => 0,
     ]);
 

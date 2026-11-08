@@ -174,7 +174,7 @@ describe('the shortcode', function (): void {
     it('renders nothing when the network is not a multisite', function (): void {
         Functions\expect('is_multisite')->once()->andReturn(false);
 
-        expect(uams_multisite_site_index_do_shortcode([]))->toBeNull();
+        expect(uams_multisite_site_index_do_shortcode([]))->toBe('');
     });
 
     it('passes its defaults to the markup', function (): void {
@@ -186,6 +186,17 @@ describe('the shortcode', function (): void {
             ->andReturn('<ul>defaults</ul>');
 
         expect(uams_multisite_site_index_do_shortcode([]))->toBe('<ul>defaults</ul>');
+    });
+
+    it('treats the empty string WordPress passes for no attributes as the defaults', function (): void {
+        when('is_multisite')->justReturn(true);
+        when('shortcode_atts')->alias(fn (array $pairs, mixed $atts): array => array_merge($pairs, (array) $atts));
+        Functions\expect('uams_multisite_site_index_get_markup')
+            ->once()
+            ->with('', 0, 100, true, 'ASC', 'id')
+            ->andReturn('<ul>defaults</ul>');
+
+        expect(uams_multisite_site_index_do_shortcode(''))->toBe('<ul>defaults</ul>');
     });
 
     it('passes each attribute to the markup in order', function (): void {
@@ -387,6 +398,16 @@ describe('the markup', function (): void {
             ->andReturn([]);
 
         expect(uams_multisite_site_index_get_markup('1, 3,x', 0, 5, true, 'DESC', 'name'))->toBe('');
+    });
+
+    it('sends the site limit to the query as an integer', function (): void {
+        when('is_multisite')->justReturn(true);
+        Functions\expect('get_sites')
+            ->once()
+            ->with(Mockery::on(fn (array $args): bool => $args['number'] === 7))
+            ->andReturn([]);
+
+        expect(uams_multisite_site_index_get_markup('', 0, '7'))->toBe('');
     });
 
     it('lists each site as an escaped linked title with its tagline', function (): void {
