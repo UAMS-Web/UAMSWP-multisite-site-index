@@ -112,7 +112,9 @@ $neverRules = [];
 return RectorConfig::configure()
     // The directories holding first-party PHP: the plugin file is at the root.
     ->withPaths([
+        __DIR__.'/scripts',
         __DIR__.'/tests',
+        __DIR__.'/uamswp-multisite-site-index.php',
     ])
     // WordPress plugins: also analyze the PHP files at the repository root (the
     // plugin header file). Uncomment for those.
