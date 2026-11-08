@@ -31,222 +31,228 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 // Add the site index shortcode.
-add_shortcode( 'site-index', 'uams_multisite_site_index_do_shortcode' );
-function uams_multisite_site_index_do_shortcode( $atts ): ?string{
-	if ( ! is_multisite() ) {
-		return null;
-	}
+add_shortcode('site-index', 'uams_multisite_site_index_do_shortcode');
+function uams_multisite_site_index_do_shortcode($atts): ?string
+{
+    if (! is_multisite()) {
+        return null;
+    }
 
-	extract( shortcode_atts( [
-		'excluded' => '',
-		'number' => 100,
-		'recent' => 0,
-		'description' => true,
-		'order' => 'ASC',
-		'orderby' => 'id'
-	], $atts ) );
+    extract(shortcode_atts([
+        'excluded' => '',
+        'number' => 100,
+        'recent' => 0,
+        'description' => true,
+        'order' => 'ASC',
+        'orderby' => 'id',
+    ], $atts));
 
-	return uams_multisite_site_index_get_markup( $excluded, $recent, $number, $description, $order, $orderby );
+    return uams_multisite_site_index_get_markup($excluded, $recent, $number, $description, $order, $orderby);
 }
 
 // Register 'Multisite Site Index' widget.
-function uams_multisite_site_index_widget_init(): void {
-	if ( ! is_multisite() ) {
-		return;
-	}
-	register_widget( 'UAMS_Multisite_Site_Index_Widget' );
+function uams_multisite_site_index_widget_init(): void
+{
+    if (! is_multisite()) {
+        return;
+    }
+    register_widget('UAMS_Multisite_Site_Index_Widget');
 }
-add_action( 'widgets_init', 'uams_multisite_site_index_widget_init' );
+add_action('widgets_init', 'uams_multisite_site_index_widget_init');
 
-class UAMS_Multisite_Site_Index_Widget extends WP_Widget {
-	/* Constructor */
-	public function __construct() {
-		parent::__construct( 'UAMS Multisite_Site_Index_Widget', __( 'Site Index', 'content-slideshow' ), [
-			'customize_selective_refresh' => true,
-			'description' => __( 'Displays an index of sites on this multisite network', 'multisite-site-index' ),
-		] );
-	}
+class UAMS_Multisite_Site_Index_Widget extends WP_Widget
+{
+    /* Constructor */
+    public function __construct()
+    {
+        parent::__construct('UAMS Multisite_Site_Index_Widget', __('Site Index', 'content-slideshow'), [
+            'customize_selective_refresh' => true,
+            'description' => __('Displays an index of sites on this multisite network', 'multisite-site-index'),
+        ]);
+    }
 
-	/* This is the Widget */
-	public function widget( $args, $instance ): void {
-		extract( $args );
+    /* This is the Widget */
+    public function widget($args, $instance): void
+    {
+        extract($args);
 
-		if ( ! array_key_exists( 'excluded', $instance ) ) {
-			$instance['excluded'] = '';
-		}
+        if (! array_key_exists('excluded', $instance)) {
+            $instance['excluded'] = '';
+        }
 
-		if ( ! array_key_exists( 'number', $instance ) ) {
-			$instance['number'] = 100;
-		}
+        if (! array_key_exists('number', $instance)) {
+            $instance['number'] = 100;
+        }
 
-		if ( ! array_key_exists( 'title', $instance ) ) {
-			$instance['title'] = '';
-		}
-		if ( ! array_key_exists( 'order', $instance ) ) {
-			$instance['order'] = 'ASC';
-		}
-		if ( ! array_key_exists( 'orderby', $instance ) ) {
-			$instance['orderby'] = 'id';
-		}
-		if ( ! array_key_exists( 'description', $instance ) ) {
-			$instance['description'] = true;
-		}
+        if (! array_key_exists('title', $instance)) {
+            $instance['title'] = '';
+        }
+        if (! array_key_exists('order', $instance)) {
+            $instance['order'] = 'ASC';
+        }
+        if (! array_key_exists('orderby', $instance)) {
+            $instance['orderby'] = 'id';
+        }
+        if (! array_key_exists('description', $instance)) {
+            $instance['description'] = true;
+        }
 
-		// Widget options
-		$title = apply_filters( 'widget_title', $instance['title'] ); // Title
-		$excluded = $instance['excluded'];
-		$number = $instance['number'];
-		$order = $instance['order'];
-		$orderby = $instance['orderby'];
-		$description = $instance['description'];
+        // Widget options
+        $title = apply_filters('widget_title', $instance['title']); // Title
+        $excluded = $instance['excluded'];
+        $number = $instance['number'];
+        $order = $instance['order'];
+        $orderby = $instance['orderby'];
+        $description = $instance['description'];
 
-		// Output
-		echo $before_widget;
+        // Output
+        echo $before_widget;
 
-		if ( $title ) {
-			echo $before_title . $title . $after_title;
-		}
+        if ($title) {
+            echo $before_title.$title.$after_title;
+        }
 
-		echo uams_multisite_site_index_get_markup( $excluded, 0, $number, $description, $order, $orderby );
+        echo uams_multisite_site_index_get_markup($excluded, 0, $number, $description, $order, $orderby);
 
-		echo $after_widget;
-	}
+        echo $after_widget;
+    }
 
-	/* Widget control update */
-	public function update( $new_instance, $old_instance ) {
-		$instance = $old_instance;
-		$instance['title'] = strip_tags( $new_instance['title'] );
-		$instance['number'] = absint( $new_instance['number'] );
-		$instance['excluded'] = strip_tags( $new_instance['excluded'] );
-		$instance['order'] = strip_tags( $new_instance['order'] );
-		$instance['orderby'] = strip_tags( $new_instance['orderby'] );
-		$instance['description'] = (bool) ( $new_instance['description'] );
+    /* Widget control update */
+    public function update($new_instance, $old_instance)
+    {
+        $instance = $old_instance;
+        $instance['title'] = strip_tags($new_instance['title']);
+        $instance['number'] = absint($new_instance['number']);
+        $instance['excluded'] = strip_tags($new_instance['excluded']);
+        $instance['order'] = strip_tags($new_instance['order']);
+        $instance['orderby'] = strip_tags($new_instance['orderby']);
+        $instance['description'] = (bool) ($new_instance['description']);
 
-		return $instance;
-	}
+        return $instance;
+    }
 
-	/* Widget settings */
-	public function form( $instance ): void {
-	    if ( $instance ) {
-			$title = $instance['title'];
-			$number = $instance['number'];
-			$excluded  = $instance['excluded'];
-			$order  = $instance['order'];
-			$orderby  = $instance['orderby'];
-			$description = $instance['description'];
-	    }
-		else {
-		    // These are the defaults.
-			$title = '';
-			$excluded = '1';
-			$number = 100;
-			$order = 'ASC';
-			$orderby = 'id';
-			$description = true;
-	    }
+    /* Widget settings */
+    public function form($instance): void
+    {
+        if ($instance) {
+            $title = $instance['title'];
+            $number = $instance['number'];
+            $excluded = $instance['excluded'];
+            $order = $instance['order'];
+            $orderby = $instance['orderby'];
+            $description = $instance['description'];
+        } else {
+            // These are the defaults.
+            $title = '';
+            $excluded = '1';
+            $number = 100;
+            $order = 'ASC';
+            $orderby = 'id';
+            $description = true;
+        }
 
-		// The widget form. ?>
+        // The widget form.?>
 		<p>
-			<label for="<?php echo $this->get_field_id('title'); ?>"><?php echo __( 'Title:', 'multisite-site-index' ); ?></label>
+			<label for="<?php echo $this->get_field_id('title'); ?>"><?php echo __('Title:', 'multisite-site-index'); ?></label>
 			<input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" class="widefat" />
 		</p>
-		<?php if ( 100 < get_sites( [ 'count' => true ] ) ) : ?>
+		<?php if (get_sites(['count' => true]) > 100) { ?>
 		<p>
-			<label for="<?php echo $this->get_field_id('number'); ?>"><?php echo __( 'Number of Sites to Show:', 'multisite-site-index' ); ?></label>
+			<label for="<?php echo $this->get_field_id('number'); ?>"><?php echo __('Number of Sites to Show:', 'multisite-site-index'); ?></label>
 			<input id="<?php echo $this->get_field_id('number'); ?>" name="<?php echo $this->get_field_name('number'); ?>" type="number" value="<?php echo $number; ?>" class="widefat" />
 		</p>
-		<?php endif; ?>
+		<?php } ?>
 		<p>
-			<label for="<?php echo $this->get_field_id('excluded'); ?>"><?php echo __( 'Excluded site IDs:', 'multisite-site-index' ); ?></label>
+			<label for="<?php echo $this->get_field_id('excluded'); ?>"><?php echo __('Excluded site IDs:', 'multisite-site-index'); ?></label>
 			<input id="<?php echo $this->get_field_id('excluded'); ?>" name="<?php echo $this->get_field_name('excluded'); ?>" type="text" value="<?php echo $excluded; ?>" class="widefat" />
 			<br />
-			<small><?php _e( 'Site IDs, separated by commas.' ); ?> <?php _e( 'Remove 1 to include the primary site.' ); ?></small>
+			<small><?php _e('Site IDs, separated by commas.'); ?> <?php _e('Remove 1 to include the primary site.'); ?></small>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id('order'); ?>"><?php echo __( 'Order (ASC or DESC):', 'multisite-site-index' ); ?></label>
-			<select name="<?php echo esc_attr( $this->get_field_name( 'order' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>" class="widefat">
-				<option value="ASC"<?php selected( $order, 'ASC' ); ?>><?php _e('ASC (A - Z)'); ?></option>
-				<option value="DESC"<?php selected( $order, 'DESC' ); ?>><?php _e('DESC (Z - A)'); ?></option>
+			<label for="<?php echo $this->get_field_id('order'); ?>"><?php echo __('Order (ASC or DESC):', 'multisite-site-index'); ?></label>
+			<select name="<?php echo esc_attr($this->get_field_name('order')); ?>" id="<?php echo esc_attr($this->get_field_id('order')); ?>" class="widefat">
+				<option value="ASC"<?php selected($order, 'ASC'); ?>><?php _e('ASC (A - Z)'); ?></option>
+				<option value="DESC"<?php selected($order, 'DESC'); ?>><?php _e('DESC (Z - A)'); ?></option>
 			</select>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id('orderby'); ?>"><?php echo __( 'Order by:', 'multisite-site-index' ); ?></label>
-			<select name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>" class="widefat">
-			  <option value="id"<?php selected( $orderby, 'id' ); ?>><?php _e( 'Site ID' ); ?></option>
-				<option value="name"<?php selected( $orderby, 'name' ); ?>><?php _e('Site Title'); ?></option>
-				<option value="last_updated"<?php selected( $orderby, 'last_updated' ); ?>><?php _e('Last Updated'); ?></option>
+			<label for="<?php echo $this->get_field_id('orderby'); ?>"><?php echo __('Order by:', 'multisite-site-index'); ?></label>
+			<select name="<?php echo esc_attr($this->get_field_name('orderby')); ?>" id="<?php echo esc_attr($this->get_field_id('orderby')); ?>" class="widefat">
+			  <option value="id"<?php selected($orderby, 'id'); ?>><?php _e('Site ID'); ?></option>
+				<option value="name"<?php selected($orderby, 'name'); ?>><?php _e('Site Title'); ?></option>
+				<option value="last_updated"<?php selected($orderby, 'last_updated'); ?>><?php _e('Last Updated'); ?></option>
 			</select>
 		</p>
-		<p><input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('description'); ?>" name="<?php echo $this->get_field_name('description'); ?>" <?php checked( $description, true, true ) ?> /> <label for="<?php echo $this->get_field_name('description'); ?>"><?php _e( 'Show site description' ); ?></label></p>
+		<p><input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('description'); ?>" name="<?php echo $this->get_field_name('description'); ?>" <?php checked($description, true, true) ?> /> <label for="<?php echo $this->get_field_name('description'); ?>"><?php _e('Show site description'); ?></label></p>
 	<?php
-	}
-
+    }
 } // class Multisite_Site_Index_Widget
 
 // Return the markup for the site index.
-function uams_multisite_site_index_get_markup( $excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id' ): string {
-	if ( ! is_multisite() ) {
-		return '';
-	}
+function uams_multisite_site_index_get_markup($excluded = '', $recent = 0, $number = 100, $description = true, $order = 'ASC', $orderby = 'id'): string
+{
+    if (! is_multisite()) {
+        return '';
+    }
 
-	$ex_ids = [];
-	$excluded = explode( ',', $excluded );
-	foreach( $excluded as $id ) {
-		$ex_ids[] = absint( trim( $id ) );
-	}
+    $ex_ids = [];
+    $excluded = explode(',', $excluded);
+    foreach ($excluded as $id) {
+        $ex_ids[] = absint(trim($id));
+    }
 
-	$sites = get_sites( [
-		'site__not_in' => $ex_ids,
-		'orderby' => $orderby,
-		'order' => $order,
-		'fields' => 'ids',
-		'number' => $number,
-		'deleted' => 0,
-	] );
+    $sites = get_sites([
+        'site__not_in' => $ex_ids,
+        'orderby' => $orderby,
+        'order' => $order,
+        'fields' => 'ids',
+        'number' => $number,
+        'deleted' => 0,
+    ]);
 
-	if ( empty ( $sites ) ) {
-		return '';
-	}
+    if (empty($sites)) {
+        return '';
+    }
 
-	$sortorder = [];
-	$innerhtml = '';
-	foreach ( $sites as $site ) {
-		switch_to_blog( $site );
-		$innerhtml .= '<li class="site">';
-		// Show the site icon and title - based on the code for embeds.
-		$innerhtml .= sprintf(
-			'<a href="%s" target="_top"><strong class="site-index-site-title">%s</strong></a>',
-			esc_url( home_url() ),
-			esc_html( get_bloginfo( 'name' ) )
-		);
-		// Add the site tagline.
-		if ( false != $description ) {
-			$innerhtml .= '<br><em class="site-index-site-tagline">' . get_bloginfo( 'description' ) . '</em>';
-		}
+    $sortorder = [];
+    $innerhtml = '';
+    foreach ($sites as $site) {
+        switch_to_blog($site);
+        $innerhtml .= '<li class="site">';
+        // Show the site icon and title - based on the code for embeds.
+        $innerhtml .= sprintf(
+            '<a href="%s" target="_top"><strong class="site-index-site-title">%s</strong></a>',
+            esc_url(home_url()),
+            esc_html(get_bloginfo('name'))
+        );
+        // Add the site tagline.
+        if ($description != false) {
+            $innerhtml .= '<br><em class="site-index-site-tagline">'.get_bloginfo('description').'</em>';
+        }
 
-		if ( 0 < $recent ) {
-			// @todo build out a recent posts option.
-		}
+        if ($recent > 0) {
+            // @todo build out a recent posts option.
+        }
 
-		$innerhtml .= '</li>';
-		$sortorder[] = [ 'title'=> esc_html( get_bloginfo( 'name' ) ), 'html'=> $innerhtml ];
-		$innerhtml = '';
-		restore_current_blog();
-	}
+        $innerhtml .= '</li>';
+        $sortorder[] = ['title' => esc_html(get_bloginfo('name')), 'html' => $innerhtml];
+        $innerhtml = '';
+        restore_current_blog();
+    }
 
-	if ( 'name' == $orderby && 'ASC' == $order ) {
-	  asort($sortorder);
-	} elseif ( 'name' == $orderby && 'DESC' == $order ) {
-		arsort($sortorder);
-	}
+    if ($orderby == 'name' && $order == 'ASC') {
+        asort($sortorder);
+    } elseif ($orderby == 'name' && $order == 'DESC') {
+        arsort($sortorder);
+    }
 
-	$html = '<ul class="site-index '. $orderby .'">';
+    $html = '<ul class="site-index '.$orderby.'">';
 
-	foreach($sortorder as $result) {
-		$html .= $result['html'];
-	}
+    foreach ($sortorder as $result) {
+        $html .= $result['html'];
+    }
 
-	$html .= '</ul>';
+    $html .= '</ul>';
 
-	return $html;
+    return $html;
 }
