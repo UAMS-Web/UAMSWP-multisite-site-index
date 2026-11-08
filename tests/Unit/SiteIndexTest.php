@@ -425,6 +425,19 @@ describe('the widget', function (): void {
             ->toContain("checked='checked'");
     });
 
+    it('returns null from the form because the form is echoed, not returned', function (): void {
+        Functions\expect('get_sites')->once()->with(['count' => true])->andReturn(10);
+
+        when('selected')->alias(fn (bool|int|string $value, bool|int|string $current = true, bool $echo = true): string => html_attribute('selected', $value, $current, $echo));
+        when('checked')->alias(fn (bool|int|string $value, bool|int|string $current = true, bool $echo = true): string => html_attribute('checked', $value, $current, $echo));
+
+        ob_start();
+        $returned = (new UAMS_Multisite_Site_Index_Widget)->form([]);
+        ob_end_clean();
+
+        expect($returned)->toBeNull();
+    });
+
     it('shows the number field only for a network of more than 100 sites', function (): void {
         expect(render_form([], 100))->not->toContain('widget-site-index[number]');
     });

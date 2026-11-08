@@ -170,8 +170,9 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
      * Widget settings.
      *
      * @param  array<string, mixed>  $instance
+     * @return string|null Always null: the form is echoed, and the parent method returns `'noform'` only for a widget with no form.
      */
-    public function form($instance): void
+    public function form($instance): ?string
     {
         if ($instance) {
             $title = uams_multisite_site_index_string($instance['title']);
@@ -224,6 +225,8 @@ class UAMS_Multisite_Site_Index_Widget extends WP_Widget
 		</p>
 		<p><input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id('description'); ?>" name="<?php echo $this->get_field_name('description'); ?>" <?php checked($description, true, true) ?> /> <label for="<?php echo $this->get_field_name('description'); ?>"><?php _e('Show site description'); ?></label></p>
 	<?php
+
+        return null;
     }
 } // class Multisite_Site_Index_Widget
 
