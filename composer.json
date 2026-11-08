@@ -27,6 +27,7 @@
     "scripts": {
         "test": "@test:unit",
         "test:unit": "pest",
+    "mutate": "pest tests/Unit/SiteIndexMarkupTest.php --mutate --covered-only --path=uamswp-multisite-site-index.php",
         "stan": "phpstan analyse --no-progress --memory-limit=2G",
         "refactor": "rector",
         "refactor:sweep": "rector --clear-cache --config=rector-sweep.php",
