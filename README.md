@@ -10,3 +10,14 @@ The suite is Pest 5 with Brain Monkey, so it needs no WordPress install and no d
 composer install
 composer test
 ```
+
+## Credits
+
+Based on Multisite Site Index by Nick Halsey.
+
+Modified by UAMS Web Services.
+
+Developers:
+
+- Todd McKee
+- Josh Daugherty
