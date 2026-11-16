@@ -84,6 +84,11 @@ function uams_multisite_site_index_widget_init(): void
 }
 add_action('widgets_init', 'uams_multisite_site_index_widget_init');
 
+/**
+ * The Site Index widget.
+ *
+ * @extends WP_Widget<array<string, mixed>>
+ */
 class UAMS_Multisite_Site_Index_Widget extends WP_Widget
 {
     /* Constructor */
