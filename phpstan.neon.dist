@@ -164,7 +164,9 @@ parameters:
         # `($args is array{fields: 'ids'}&array ? array<int, int> : array<int, WP_Site>)`, and under
         # bleedingEdge.neon PHPStan reads that shape as sealed, so an argument array with other keys
         # falls to WP_Site. The 7.x stubs write `array{fields: 'ids', ...}`, which stays open
-        # (see php-stubs/wordpress-stubs#485 on sealed stub shapes). Remove this entry when the stubs
+        # (see php-stubs/wordpress-stubs#485 on sealed stub shapes). The entry is specific to this
+        # repository's get_sites()/switch_to_blog() call: sibling plugins on the same 6.8.3 stubs pass
+        # level 10 without it. Remove this entry when the stubs
         # move past the 6.8 line; it fails the run as unmatched once the defect is gone.
         -
             identifier: argument.type
