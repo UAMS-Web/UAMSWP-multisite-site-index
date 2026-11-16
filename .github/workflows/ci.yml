@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   checks:
-    uses: UAMS-Web/uams-ci-workflows/.github/workflows/ci.yml@v0.9.0
+    uses: UAMS-Web/uams-ci-workflows/.github/workflows/ci.yml@v0.13.0
     with:
       linux-only: true
       mutate-paths: uamswp-multisite-site-index.php
